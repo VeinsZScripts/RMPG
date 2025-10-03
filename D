@@ -1,42 +1,26 @@
--- DarkMirror Classic UI Library (Enhanced)
--- Usage:
--- local DM = loadstring(game:HttpGet("YOUR_RAW_URL_HERE"))()
--- local win = DM:CreateWindow("DarkMirror", "Example UI", "v1.0")
--- local home = win:CreateTab("Home")
--- home:CreateSection("Main Features")
--- home:CreateToggle("God Mode", function(state) print("God Mode:", state) end)
--- home:CreateSlider("Speed", 1, 50, 10, function(val) print("Speed:", val) end)
--- home:CreateDropdown("Weapon", {"Sword", "Gun", "Bow"}, function(opt) print("Selected:", opt) end)
--- home:CreateTextbox("Nickname", "Enter your name...", function(txt) print("Nickname:", txt) end)
--- home:CreateButton("Submit", function() print("Submitted!") end)
-
+-- DarkMirror UI Library (Fully Pressable Elements, Mobile-Friendly Slider & Dropdown)
 local Library = {}
 Library.__index = Library
 
--- Global callback
 local globalCallback = nil
 function Library:SetCallback(func)
     globalCallback = func
 end
 
--- Services
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Default icons (replace asset ids if needed)
 local defaultShowIcon = "rbxassetid://YOUR_SHOW_ICON_ID"
 local defaultHideIcon = "rbxassetid://YOUR_HIDE_ICON_ID"
 
--- Create base ScreenGui (one instance used by library)
 local baseScreenGui = Instance.new("ScreenGui")
 baseScreenGui.Name = "DarkMirrorClassicUILib"
 baseScreenGui.Parent = playerGui
 baseScreenGui.ResetOnSpawn = false
 
--- Show/Hide draggable button
 local showHideBtn = Instance.new("ImageButton")
 showHideBtn.Size = UDim2.new(0, 60, 0, 60)
 showHideBtn.Position = UDim2.new(0, 24, 0.5, -30)
@@ -50,7 +34,6 @@ local showHideBtnStroke = Instance.new("UIStroke", showHideBtn)
 showHideBtnStroke.Color = Color3.fromRGB(255, 0, 0)
 showHideBtnStroke.Thickness = 2
 
--- Make Show/Hide Button draggable
 do
     local dragging, dragInput, dragStart, startPos
     local function updateDrag(input)
@@ -84,7 +67,6 @@ do
     end)
 end
 
--- Helper utilities
 local function createUICorner(instance, radius)
     local c = Instance.new("UICorner")
     c.CornerRadius = radius or UDim.new(0, 6)
@@ -115,7 +97,6 @@ local function createUIGradient(instance)
     return grad
 end
 
--- Library constructor: CreateWindow
 function Library:CreateWindow(guiName, subtitle, version)
     local Window = {}
     Window.__index = Window
@@ -130,7 +111,6 @@ function Library:CreateWindow(guiName, subtitle, version)
     mainFrame.Name = guiName or "DarkMirrorClassicUI"
     createUICorner(mainFrame, UDim.new(0,8))
 
-    -- Title Bar (DarkMirror theme)
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 46)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
@@ -181,7 +161,6 @@ function Library:CreateWindow(guiName, subtitle, version)
     versionLabel.Parent = titleBar
     versionLabel.ZIndex = 3
 
-    -- Drag main UI from title bar only
     do
         local dragging, dragInput, dragStart, startPos
         local function updateDrag(input)
@@ -215,7 +194,6 @@ function Library:CreateWindow(guiName, subtitle, version)
         end)
     end
 
-    -- Sidebar
     local sidebar = Instance.new("ScrollingFrame")
     sidebar.Size = UDim2.new(0, 154, 1, -46)
     sidebar.Position = UDim2.new(0, 0, 0, 46)
@@ -234,7 +212,6 @@ function Library:CreateWindow(guiName, subtitle, version)
     sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
     sidebarList.Padding = UDim.new(0, 8)
 
-    -- Content area
     local content = Instance.new("ScrollingFrame")
     content.Size = UDim2.new(1, -166, 1, -56)
     content.Position = UDim2.new(0, 154, 0, 56)
@@ -250,7 +227,6 @@ function Library:CreateWindow(guiName, subtitle, version)
     local tabFrames = {}
     local sidebarButtons = {}
 
-    -- show/hide toggle
     local uiVisible = true
     showHideBtn.MouseButton1Click:Connect(function()
         uiVisible = not uiVisible
@@ -258,7 +234,6 @@ function Library:CreateWindow(guiName, subtitle, version)
         showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
     end)
 
-    -- CreateTab
     function Window:CreateTab(name)
         local tabFrame = Instance.new("ScrollingFrame")
         tabFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -307,11 +282,11 @@ function Library:CreateWindow(guiName, subtitle, version)
         local Tab = {}
         Tab.__index = Tab
 
-        -- Insert element at correct position
-        local function createRow(parent, labelText, element)
+        local function createRow(parent, labelText, element, onPress)
             local row = Instance.new("Frame")
             row.Size = UDim2.new(0.93, 0, 0, 40)
-            row.BackgroundTransparency = 1
+            row.BackgroundTransparency = 0.85
+            row.BackgroundColor3 = Color3.fromRGB(20,0,0)
             row.Parent = parent
 
             local label = Instance.new("TextLabel")
@@ -331,7 +306,18 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if element.Size.Y.Offset then elHeight = element.Size.Y.Offset end
             end
             element.Position = UDim2.new(1, -elWidth, 0.5, -elHeight/2)
-            return row
+
+            local rowBtn = Instance.new("TextButton")
+            rowBtn.Size = UDim2.new(1,0,1,0)
+            rowBtn.BackgroundTransparency = 1
+            rowBtn.Text = ""
+            rowBtn.Parent = row
+            rowBtn.ZIndex = 12
+            if onPress then
+                rowBtn.MouseButton1Click:Connect(onPress)
+                rowBtn.TouchTap:Connect(onPress)
+            end
+            return row, rowBtn
         end
 
         function Tab:CreateSection(sectionTitle)
@@ -353,7 +339,6 @@ function Library:CreateWindow(guiName, subtitle, version)
             return sectionRow
         end
 
-        -- Toggle
         function Tab:CreateToggle(name, callback)
             callback = callback or function() end
             local toggleSwitch = Instance.new("TextButton")
@@ -363,18 +348,6 @@ function Library:CreateWindow(guiName, subtitle, version)
             toggleSwitch.AutoButtonColor = true
             createUICorner(toggleSwitch, UDim.new(1,0))
             toggleSwitch.ZIndex = 10
-
-            -- Hover feedback
-            toggleSwitch.MouseEnter:Connect(function()
-                if toggleSwitch.BackgroundColor3 == Color3.fromRGB(60,0,0) then
-                    toggleSwitch.BackgroundColor3 = Color3.fromRGB(90,0,20)
-                end
-            end)
-            toggleSwitch.MouseLeave:Connect(function()
-                if toggleSwitch.BackgroundColor3 == Color3.fromRGB(90,0,20) then
-                    toggleSwitch.BackgroundColor3 = Color3.fromRGB(60,0,0)
-                end
-            end)
 
             local switchCircle = Instance.new("Frame")
             switchCircle.Size = UDim2.new(0, 13, 1, -4)
@@ -395,33 +368,17 @@ function Library:CreateWindow(guiName, subtitle, version)
                 end
             end
 
-            toggleSwitch.MouseButton1Click:Connect(function()
+            local function onTogglePress()
                 toggleOn = not toggleOn
                 updateToggle()
                 pcall(callback, toggleOn)
                 if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
-            end)
+            end
 
-            -- Make toggle row clickable
-            local row = createRow(tabFrame, name..":", toggleSwitch)
-            row.BackgroundTransparency = 0.85
-            row.BackgroundColor3 = Color3.fromRGB(20,0,0)
-            local rowBtn = Instance.new("TextButton")
-            rowBtn.Size = UDim2.new(1,0,1,0)
-            rowBtn.BackgroundTransparency = 1
-            rowBtn.Text = ""
-            rowBtn.Parent = row
-            rowBtn.ZIndex = 12
-            rowBtn.MouseButton1Click:Connect(function()
-                toggleOn = not toggleOn
-                updateToggle()
-                pcall(callback, toggleOn)
-                if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
-            end)
+            createRow(tabFrame, name..":", toggleSwitch, onTogglePress)
             return toggleSwitch
         end
 
-        -- Slider
         function Tab:CreateSlider(name, min, max, default, callback)
             if type(default) == "function" and callback == nil then
                 callback = default
@@ -469,43 +426,65 @@ function Library:CreateWindow(guiName, subtitle, version)
                 pcall(callback, sliderValue)
                 if globalCallback then pcall(globalCallback, "Slider", name, sliderValue) end
             end
+
+            local function onSliderPress(input)
+                local pos = input and input.Position or UserInputService:GetMouseLocation()
+                updateSlider(pos.X)
+                draggingSlider = true
+            end
+
+            local function stopSliderDrag()
+                draggingSlider = false
+            end
+
+            local row, rowBtn = createRow(tabFrame, name..":", sliderFrame, function(input)
+                onSliderPress(input)
+            end)
+
             sliderThumb.InputBegan:Connect(function(input)
                 if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    draggingSlider = true
+                    onSliderPress(input)
                 end
             end)
             sliderThumb.InputEnded:Connect(function(input)
                 if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    draggingSlider = false
+                    stopSliderDrag()
                 end
+            end)
+            sliderFrame.InputBegan:Connect(function(input)
+                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+                    onSliderPress(input)
+                end
+            end)
+            sliderFrame.InputEnded:Connect(function(input)
+                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+                    stopSliderDrag()
+                end
+            end)
+            rowBtn.MouseButton1Down:Connect(function(input)
+                onSliderPress(input)
+            end)
+            rowBtn.MouseButton1Up:Connect(stopSliderDrag)
+            rowBtn.TouchTap:Connect(function()
+                local pos = UserInputService:GetMouseLocation()
+                updateSlider(pos.X)
+                draggingSlider = false
             end)
             UserInputService.InputChanged:Connect(function(input)
                 if draggingSlider and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
                     updateSlider(input.Position.X)
                 end
             end)
-            sliderFrame.InputBegan:Connect(function(input)
-                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    updateSlider(input.Position.X)
-                    draggingSlider = true
-                end
-            end)
-            sliderFrame.InputEnded:Connect(function(input)
-                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    draggingSlider = false
-                end
-            end)
+
             sliderFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
                 local rel = 0
                 if max ~= min then rel = (default - min) / (max - min) end
                 sliderThumb.Position = UDim2.new(math.clamp(rel,0,1), -7, -0.2, -2)
                 sliderValueLabel.Text = tostring(default)
             end)
-            createRow(tabFrame, name..":", sliderFrame)
             return sliderFrame
         end
 
-        -- Dropdown
         function Tab:CreateDropdown(name, options, callback)
             options = options or {}
             callback = callback or function() end
@@ -556,15 +535,22 @@ function Library:CreateWindow(guiName, subtitle, version)
                     pcall(callback, opt)
                     if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
                 end)
+                optBtn.TouchTap:Connect(function()
+                    dropdownLabel.Text = opt
+                    dropdownListFrame.Visible = false
+                    pcall(callback, opt)
+                    if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
+                end)
             end
-            dropdownBtn.MouseButton1Click:Connect(function()
+
+            local function onDropdownPress()
                 dropdownListFrame.Visible = not dropdownListFrame.Visible
-            end)
-            createRow(tabFrame, name..":", dropdownFrame)
+            end
+
+            createRow(tabFrame, name..":", dropdownFrame, onDropdownPress)
             return dropdownFrame
         end
 
-        -- Textbox
         function Tab:CreateTextbox(name, placeholder, callback)
             callback = callback or function() end
             placeholder = placeholder or ""
@@ -589,7 +575,6 @@ function Library:CreateWindow(guiName, subtitle, version)
             return tb
         end
 
-        -- Button
         function Tab:CreateButton(name, callback)
             callback = callback or function() end
             local btn = Instance.new("TextButton")
@@ -605,7 +590,14 @@ function Library:CreateWindow(guiName, subtitle, version)
                 pcall(callback)
                 if globalCallback then pcall(globalCallback, "Button", name, true) end
             end)
-            createRow(tabFrame, name..":", btn)
+            btn.TouchTap:Connect(function()
+                pcall(callback)
+                if globalCallback then pcall(globalCallback, "Button", name, true) end
+            end)
+            createRow(tabFrame, name..":", btn, function()
+                pcall(callback)
+                if globalCallback then pcall(globalCallback, "Button", name, true) end
+            end)
             return btn
         end
 
