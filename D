@@ -82,21 +82,6 @@ local function createUIStroke(instance, color, thickness)
     return s
 end
 
-local function createUIGradient(instance)
-    local grad = Instance.new("UIGradient")
-    grad.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(10,10,10)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60,0,20)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(16,0,0))
-    }
-    grad.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, 0),
-        NumberSequenceKeypoint.new(1, 0)
-    }
-    grad.Parent = instance
-    return grad
-end
-
 function Library:CreateWindow(guiName, subtitle, version)
     local Window = {}
     Window.__index = Window
@@ -114,17 +99,11 @@ function Library:CreateWindow(guiName, subtitle, version)
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 46)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
-    -- CHANGED: Set titleBar background to match the base UI (mainFrame)
-    titleBar.BackgroundColor3 = mainFrame.BackgroundColor3
-    titleBar.BackgroundTransparency = mainFrame.BackgroundTransparency
+    titleBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    titleBar.BackgroundTransparency = 0
     titleBar.Parent = mainFrame
     titleBar.Name = "TitleBar"
     createUICorner(titleBar, UDim.new(0,8))
-    -- CHANGED: Remove the red border/stroke from the title bar
-    -- -- REMOVED: createUIStroke(titleBar, Color3.fromRGB(90,10,20), 2)
-    -- The gradient is optional, but you may remove or tweak it if you want a solid color.
-    -- Optionally comment the gradient if you want it fully solid:
-    -- -- createUIGradient(titleBar)
     titleBar.ZIndex = 2
 
     local titleLabel = Instance.new("TextLabel")
@@ -318,9 +297,14 @@ function Library:CreateWindow(guiName, subtitle, version)
             rowBtn.Text = ""
             rowBtn.Parent = row
             rowBtn.ZIndex = 12
+            -- Ensure the rowBtn is pressable and fires the callback!
             if onPress then
-                rowBtn.MouseButton1Click:Connect(onPress)
-                rowBtn.TouchTap:Connect(onPress)
+                rowBtn.MouseButton1Click:Connect(function()
+                    onPress()
+                end)
+                rowBtn.TouchTap:Connect(function()
+                    onPress()
+                end)
             end
             return row, rowBtn
         end
@@ -380,6 +364,9 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
             end
 
+            -- Make the toggleSwitch itself pressable
+            toggleSwitch.MouseButton1Click:Connect(onTogglePress)
+            toggleSwitch.TouchTap:Connect(onTogglePress)
             createRow(tabFrame, name..":", toggleSwitch, onTogglePress)
             return toggleSwitch
         end
@@ -552,6 +539,8 @@ function Library:CreateWindow(guiName, subtitle, version)
                 dropdownListFrame.Visible = not dropdownListFrame.Visible
             end
 
+            dropdownBtn.MouseButton1Click:Connect(onDropdownPress)
+            dropdownBtn.TouchTap:Connect(onDropdownPress)
             createRow(tabFrame, name..":", dropdownFrame, onDropdownPress)
             return dropdownFrame
         end
