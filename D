@@ -1,5 +1,4 @@
--- DarkMirror UI Library (Sharp Titlebar, Larger UI, Tighter Elements)
-
+-- DarkMirror UI Library (Fully Pressable Elements, Mobile-Friendly Slider & Dropdown)
 local Library = {}
 Library.__index = Library
 
@@ -70,7 +69,7 @@ end
 
 local function createUICorner(instance, radius)
     local c = Instance.new("UICorner")
-    c.CornerRadius = radius or UDim.new(0, 8)
+    c.CornerRadius = radius or UDim.new(0, 6)
     c.Parent = instance
     return c
 end
@@ -103,35 +102,33 @@ function Library:CreateWindow(guiName, subtitle, version)
     Window.__index = Window
 
     local screenGui = baseScreenGui
-    -- MAKE UI BIGGER!
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 560, 0, 380)
-    mainFrame.Position = UDim2.new(0.5, -280, 0.5, -190)
+    mainFrame.Size = UDim2.new(0, 480, 0, 320)
+    mainFrame.Position = UDim2.new(0.5, -240, 0.5, -160)
     mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     mainFrame.BackgroundTransparency = 0.25
     mainFrame.Parent = screenGui
     mainFrame.Name = guiName or "DarkMirrorClassicUI"
     createUICorner(mainFrame, UDim.new(0,8))
 
-    -- SHARP TITLE BAR (no UICorner)
     local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, 50)
+    titleBar.Size = UDim2.new(1, 0, 0, 46)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
     titleBar.BackgroundColor3 = Color3.fromRGB(30, 0, 15)
     titleBar.Parent = mainFrame
     titleBar.Name = "TitleBar"
-    -- NO createUICorner(titleBar, ...)
+    createUICorner(titleBar, UDim.new(0,8))
     createUIStroke(titleBar, Color3.fromRGB(90,10,20), 2)
     createUIGradient(titleBar)
     titleBar.ZIndex = 2
 
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(0, 260, 0, 32)
-    titleLabel.Position = UDim2.new(0, 18, 0, 8)
+    titleLabel.Size = UDim2.new(0, 220, 0, 28)
+    titleLabel.Position = UDim2.new(0, 16, 0, 8)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = guiName or "DarkMirrorClassicUI"
     titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextSize = 26
+    titleLabel.TextSize = 23
     titleLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
     titleLabel.TextStrokeTransparency = 0.5
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -139,12 +136,12 @@ function Library:CreateWindow(guiName, subtitle, version)
     titleLabel.ZIndex = 3
 
     local subtitleLabel = Instance.new("TextLabel")
-    subtitleLabel.Size = UDim2.new(0, 200, 0, 20)
-    subtitleLabel.Position = UDim2.new(0, 20, 0, 36)
+    subtitleLabel.Size = UDim2.new(0, 170, 0, 20)
+    subtitleLabel.Position = UDim2.new(0, 18, 0, 28)
     subtitleLabel.BackgroundTransparency = 1
     subtitleLabel.Text = subtitle or ""
     subtitleLabel.Font = Enum.Font.Gotham
-    subtitleLabel.TextSize = 17
+    subtitleLabel.TextSize = 16
     subtitleLabel.TextColor3 = Color3.fromRGB(255, 160, 160)
     subtitleLabel.TextStrokeTransparency = 0.7
     subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -153,11 +150,11 @@ function Library:CreateWindow(guiName, subtitle, version)
 
     local versionLabel = Instance.new("TextLabel")
     versionLabel.Size = UDim2.new(0, 70, 0, 18)
-    versionLabel.Position = UDim2.new(1, -90, 0, 16)
+    versionLabel.Position = UDim2.new(1, -80, 0, 14)
     versionLabel.BackgroundTransparency = 1
     versionLabel.Text = version or ""
     versionLabel.Font = Enum.Font.GothamBold
-    versionLabel.TextSize = 15
+    versionLabel.TextSize = 14
     versionLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
     versionLabel.TextStrokeTransparency = 0.8
     versionLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -198,8 +195,8 @@ function Library:CreateWindow(guiName, subtitle, version)
     end
 
     local sidebar = Instance.new("ScrollingFrame")
-    sidebar.Size = UDim2.new(0, 172, 1, -50)
-    sidebar.Position = UDim2.new(0, 0, 0, 50)
+    sidebar.Size = UDim2.new(0, 154, 1, -46)
+    sidebar.Position = UDim2.new(0, 0, 0, 46)
     sidebar.CanvasSize = UDim2.new(0,0,0,0)
     sidebar.ScrollBarThickness = 4
     sidebar.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
@@ -213,11 +210,11 @@ function Library:CreateWindow(guiName, subtitle, version)
 
     local sidebarList = Instance.new("UIListLayout", sidebar)
     sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
-    sidebarList.Padding = UDim.new(0, 7) -- slightly closer
+    sidebarList.Padding = UDim.new(0, 8)
 
     local content = Instance.new("ScrollingFrame")
-    content.Size = UDim2.new(1, -184, 1, -62)
-    content.Position = UDim2.new(0, 172, 0, 62)
+    content.Size = UDim2.new(1, -166, 1, -56)
+    content.Position = UDim2.new(0, 154, 0, 56)
     content.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     content.BackgroundTransparency = 0.35
     content.Parent = mainFrame
@@ -252,7 +249,7 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         local layout = Instance.new("UIListLayout", tabFrame)
         layout.FillDirection = Enum.FillDirection.Vertical
-        layout.Padding = UDim.new(0, 6)  -- tighter: less vertical spacing
+        layout.Padding = UDim.new(0, 8)
         layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
@@ -287,13 +284,13 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         local function createRow(parent, labelText, element, onPress)
             local row = Instance.new("Frame")
-            row.Size = UDim2.new(0.95, 0, 0, 36)
+            row.Size = UDim2.new(0.93, 0, 0, 40)
             row.BackgroundTransparency = 0.85
             row.BackgroundColor3 = Color3.fromRGB(20,0,0)
             row.Parent = parent
 
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(0.53, 0, 1, 0)
+            label.Size = UDim2.new(0.55, 0, 1, 0)
             label.BackgroundTransparency = 1
             label.Text = labelText
             label.Font = Enum.Font.GothamBold
@@ -325,7 +322,7 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         function Tab:CreateSection(sectionTitle)
             local sectionRow = Instance.new("Frame")
-            sectionRow.Size = UDim2.new(0.95, 0, 0, 30)
+            sectionRow.Size = UDim2.new(0.93, 0, 0, 32)
             sectionRow.BackgroundTransparency = 1
             sectionRow.Parent = tabFrame
 
@@ -334,7 +331,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.Text = sectionTitle
             sectionLabel.Font = Enum.Font.GothamBold
-            sectionLabel.TextSize = 18
+            sectionLabel.TextSize = 20
             sectionLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
             sectionLabel.TextStrokeTransparency = 0.8
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
