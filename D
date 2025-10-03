@@ -145,6 +145,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     versionLabel.Parent = titleBar
     versionLabel.ZIndex = 3
 
+    -- Window drag (desktop & mobile)
     do
         local dragging, dragInput, dragStart, startPos
         local function updateDrag(input)
@@ -212,15 +213,20 @@ function Library:CreateWindow(guiName, subtitle, version)
     local sidebarButtons = {}
 
     local uiVisible = true
-    showHideBtn.MouseButton1Click:Connect(function()
+
+    -- FIX: Make show/hide button reliably work for both desktop and mobile
+    local function toggleUI()
         uiVisible = not uiVisible
         mainFrame.Visible = uiVisible
         showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
-    end)
-    showHideBtn.TouchTap:Connect(function()
-        uiVisible = not uiVisible
-        mainFrame.Visible = uiVisible
-        showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
+    end
+
+    showHideBtn.MouseButton1Click:Connect(toggleUI)
+    showHideBtn.TouchTap:Connect(toggleUI)
+    showHideBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            toggleUI()
+        end
     end)
 
     function Window:CreateTab(name)
@@ -264,6 +270,11 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         btn.MouseButton1Click:Connect(activateTab)
         btn.TouchTap:Connect(activateTab)
+        btn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then
+                activateTab()
+            end
+        end)
 
         table.insert(sidebarButtons, btn)
         if #sidebarButtons == 1 then
@@ -308,6 +319,11 @@ function Library:CreateWindow(guiName, subtitle, version)
             if onPress then
                 rowBtn.MouseButton1Click:Connect(onPress)
                 rowBtn.TouchTap:Connect(onPress)
+                rowBtn.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.Touch then
+                        onPress()
+                    end
+                end)
             end
             return row, rowBtn
         end
@@ -377,8 +393,15 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
             end
 
+            -- FIX: Add full mobile support for toggle
             toggleSwitch.MouseButton1Click:Connect(onTogglePress)
             toggleSwitch.TouchTap:Connect(onTogglePress)
+            toggleSwitch.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    onTogglePress()
+                end
+            end)
+
             updateToggle(true) -- instantly set initial position
             createRow(tabFrame, name..":", toggleSwitch, onTogglePress)
             return toggleSwitch
@@ -479,6 +502,18 @@ function Library:CreateWindow(guiName, subtitle, version)
                 updateSlider(pos.X)
                 draggingSlider = false
             end)
+            rowBtn.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    local pos = input.Position
+                    updateSlider(pos.X)
+                    draggingSlider = true
+                end
+            end)
+            rowBtn.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSlider = false
+                end
+            end)
             UserInputService.InputChanged:Connect(function(input)
                 if draggingSlider and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
                     updateSlider(input.Position.X)
@@ -551,6 +586,14 @@ function Library:CreateWindow(guiName, subtitle, version)
                     pcall(callback, opt)
                     if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
                 end)
+                optBtn.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.Touch then
+                        dropdownLabel.Text = opt
+                        dropdownListFrame.Visible = false
+                        pcall(callback, opt)
+                        if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
+                    end
+                end)
             end
 
             local function onDropdownPress()
@@ -559,6 +602,11 @@ function Library:CreateWindow(guiName, subtitle, version)
 
             dropdownBtn.MouseButton1Click:Connect(onDropdownPress)
             dropdownBtn.TouchTap:Connect(onDropdownPress)
+            dropdownBtn.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    onDropdownPress()
+                end
+            end)
             createRow(tabFrame, name..":", dropdownFrame, onDropdownPress)
             return dropdownFrame
         end
@@ -586,6 +634,11 @@ function Library:CreateWindow(guiName, subtitle, version)
                     if globalCallback then pcall(globalCallback, "Textbox", name, tb.Text) end
                 end
             end)
+            tb.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    -- Optionally handle touch focus if needed
+                end
+            end)
             createRow(tabFrame, name..":", tb)
             return tb
         end
@@ -601,18 +654,19 @@ function Library:CreateWindow(guiName, subtitle, version)
             btn.TextColor3 = Color3.fromRGB(255,255,255)
             createUICorner(btn, UDim.new(0,6))
 
-            btn.MouseButton1Click:Connect(function()
+            local function press()
                 pcall(callback)
                 if globalCallback then pcall(globalCallback, "Button", name, true) end
+            end
+
+            btn.MouseButton1Click:Connect(press)
+            btn.TouchTap:Connect(press)
+            btn.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch then
+                    press()
+                end
             end)
-            btn.TouchTap:Connect(function()
-                pcall(callback)
-                if globalCallback then pcall(globalCallback, "Button", name, true) end
-            end)
-            createRow(tabFrame, name..":", btn, function()
-                pcall(callback)
-                if globalCallback then pcall(globalCallback, "Button", name, true) end
-            end)
+            createRow(tabFrame, name..":", btn, press)
             return btn
         end
 
