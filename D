@@ -82,21 +82,6 @@ local function createUIStroke(instance, color, thickness)
     return s
 end
 
-local function createUIGradient(instance)
-    local grad = Instance.new("UIGradient")
-    grad.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(10,10,10)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60,0,20)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(16,0,0))
-    }
-    grad.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, 0),
-        NumberSequenceKeypoint.new(1, 0)
-    }
-    grad.Parent = instance
-    return grad
-end
-
 function Library:CreateWindow(guiName, subtitle, version)
     local Window = {}
     Window.__index = Window
@@ -114,12 +99,11 @@ function Library:CreateWindow(guiName, subtitle, version)
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 46)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
-    titleBar.BackgroundColor3 = Color3.fromRGB(30, 0, 15)
+    titleBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    titleBar.BackgroundTransparency = 0
     titleBar.Parent = mainFrame
     titleBar.Name = "TitleBar"
     createUICorner(titleBar, UDim.new(0,8))
-    createUIStroke(titleBar, Color3.fromRGB(90,10,20), 2)
-    createUIGradient(titleBar)
     titleBar.ZIndex = 2
 
     local titleLabel = Instance.new("TextLabel")
@@ -233,6 +217,11 @@ function Library:CreateWindow(guiName, subtitle, version)
         mainFrame.Visible = uiVisible
         showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
     end)
+    showHideBtn.TouchTap:Connect(function()
+        uiVisible = not uiVisible
+        mainFrame.Visible = uiVisible
+        showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
+    end)
 
     function Window:CreateTab(name)
         local tabFrame = Instance.new("ScrollingFrame")
@@ -266,12 +255,15 @@ function Library:CreateWindow(guiName, subtitle, version)
         btn.Parent = sidebar
         btn.ZIndex = 4
 
-        btn.MouseButton1Click:Connect(function()
+        local function activateTab()
             for _, f in pairs(tabFrames) do f.Visible = false end
             tabFrame.Visible = true
             for _, b in pairs(sidebarButtons) do b.BackgroundColor3 = Color3.fromRGB(30, 30, 30) end
             btn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
-        end)
+        end
+
+        btn.MouseButton1Click:Connect(activateTab)
+        btn.TouchTap:Connect(activateTab)
 
         table.insert(sidebarButtons, btn)
         if #sidebarButtons == 1 then
@@ -358,13 +350,23 @@ function Library:CreateWindow(guiName, subtitle, version)
             switchCircle.ZIndex = 11
 
             local toggleOn = false
-            local function updateToggle()
+            local function updateToggle(instantly)
                 if toggleOn then
-                    TweenService:Create(toggleSwitch,TweenInfo.new(0.18),{BackgroundColor3=Color3.fromRGB(255,0,0)}):Play()
-                    TweenService:Create(switchCircle,TweenInfo.new(0.18),{Position=UDim2.new(1,-15,0,2)}):Play()
+                    if instantly then
+                        toggleSwitch.BackgroundColor3 = Color3.fromRGB(255,0,0)
+                        switchCircle.Position = UDim2.new(1,-15,0,2)
+                    else
+                        TweenService:Create(toggleSwitch,TweenInfo.new(0.18),{BackgroundColor3=Color3.fromRGB(255,0,0)}):Play()
+                        TweenService:Create(switchCircle,TweenInfo.new(0.18),{Position=UDim2.new(1,-15,0,2)}):Play()
+                    end
                 else
-                    TweenService:Create(toggleSwitch,TweenInfo.new(0.18),{BackgroundColor3=Color3.fromRGB(60,0,0)}):Play()
-                    TweenService:Create(switchCircle,TweenInfo.new(0.18),{Position=UDim2.new(0,2,0,2)}):Play()
+                    if instantly then
+                        toggleSwitch.BackgroundColor3 = Color3.fromRGB(60,0,0)
+                        switchCircle.Position = UDim2.new(0,2,0,2)
+                    else
+                        TweenService:Create(toggleSwitch,TweenInfo.new(0.18),{BackgroundColor3=Color3.fromRGB(60,0,0)}):Play()
+                        TweenService:Create(switchCircle,TweenInfo.new(0.18),{Position=UDim2.new(0,2,0,2)}):Play()
+                    end
                 end
             end
 
@@ -377,7 +379,7 @@ function Library:CreateWindow(guiName, subtitle, version)
 
             toggleSwitch.MouseButton1Click:Connect(onTogglePress)
             toggleSwitch.TouchTap:Connect(onTogglePress)
-            updateToggle() -- set initial state instantly
+            updateToggle(true) -- instantly set initial position
             createRow(tabFrame, name..":", toggleSwitch, onTogglePress)
             return toggleSwitch
         end
@@ -416,14 +418,18 @@ function Library:CreateWindow(guiName, subtitle, version)
 
             local sliderValue = default
             local draggingSlider = false
-            local function updateSlider(inputX)
+            local function updateSlider(inputX, instantly)
                 local absPosX = sliderFrame.AbsolutePosition.X
                 local absSizeX = sliderFrame.AbsoluteSize.X
                 local relativeX = 0
                 if absSizeX > 0 then
                     relativeX = math.clamp((inputX - absPosX)/absSizeX, 0, 1)
                 end
-                sliderThumb.Position = UDim2.new(relativeX, -7, -0.2, -2)
+                if instantly then
+                    sliderThumb.Position = UDim2.new(relativeX, -7, -0.2, -2)
+                else
+                    TweenService:Create(sliderThumb,TweenInfo.new(0.14),{Position=UDim2.new(relativeX, -7, -0.2, -2)}):Play()
+                end
                 sliderValue = math.floor(min + (max - min) * relativeX)
                 sliderValueLabel.Text = tostring(sliderValue)
                 pcall(callback, sliderValue)
@@ -485,6 +491,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 sliderThumb.Position = UDim2.new(math.clamp(rel,0,1), -7, -0.2, -2)
                 sliderValueLabel.Text = tostring(default)
             end)
+            updateSlider(sliderFrame.AbsolutePosition.X, true)
             return sliderFrame
         end
 
@@ -570,6 +577,9 @@ function Library:CreateWindow(guiName, subtitle, version)
             tb.TextColor3 = Color3.fromRGB(255,255,255)
             createUICorner(tb, UDim.new(0,6))
 
+            tb.Focused:Connect(function()
+                -- Optional: visually highlight or perform an action when focused
+            end)
             tb.FocusLost:Connect(function(enterPressed)
                 if enterPressed then
                     pcall(callback, tb.Text)
