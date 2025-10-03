@@ -528,6 +528,10 @@ function Library:CreateWindow(guiName, subtitle, version)
             tb.TextColor3 = Color3.fromRGB(255,255,255)
             createUICorner(tb, UDim.new(0,6))
 
+            -- Mobile and desktop: Focused when tapped or clicked, FocusLost when submit or unfocus
+            tb.Focused:Connect(function()
+                -- Optional: visually highlight or perform an action when focused
+            end)
             tb.FocusLost:Connect(function(enterPressed)
                 if enterPressed then
                     pcall(callback, tb.Text)
