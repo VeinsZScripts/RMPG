@@ -1,5 +1,5 @@
 -- DarkMirror UI Library
--- Cooler dropdown, title bar without border, tabs lined up with spacing below title bar
+-- Elements pressable only on mobile, elements slightly bigger, title bar full width
 
 local Library = {}
 Library.__index = Library
@@ -76,6 +76,14 @@ local function createUICorner(instance, radius)
     return c
 end
 
+local function createUIStroke(instance, color, thickness)
+    local s = Instance.new("UIStroke")
+    s.Color = color or Color3.fromRGB(255, 0, 0)
+    s.Thickness = thickness or 2
+    s.Parent = instance
+    return s
+end
+
 local function createUIGradient(instance)
     local grad = Instance.new("UIGradient")
     grad.Color = ColorSequence.new{
@@ -96,6 +104,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     Window.__index = Window
 
     local screenGui = baseScreenGui
+    -- Slightly bigger UI
     local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 600, 0, 420)
     mainFrame.Position = UDim2.new(0.5, -300, 0.5, -210)
@@ -105,13 +114,15 @@ function Library:CreateWindow(guiName, subtitle, version)
     mainFrame.Name = guiName or "DarkMirrorClassicUI"
     createUICorner(mainFrame, UDim.new(0,8))
 
-    -- Title Bar: full width, sharp edges, NO border
+    -- Title Bar: full width, sharp edges
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 56)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
     titleBar.BackgroundColor3 = Color3.fromRGB(30, 0, 15)
     titleBar.Parent = mainFrame
     titleBar.Name = "TitleBar"
+    -- NO createUICorner(titleBar, ...)
+    createUIStroke(titleBar, Color3.fromRGB(90,10,20), 2)
     createUIGradient(titleBar)
     titleBar.ZIndex = 2
 
@@ -187,10 +198,9 @@ function Library:CreateWindow(guiName, subtitle, version)
         end)
     end
 
-    -- Tabs: line up, not close to title bar (16px below)
     local sidebar = Instance.new("ScrollingFrame")
     sidebar.Size = UDim2.new(0, 200, 1, -56)
-    sidebar.Position = UDim2.new(0, 0, 0, 72) -- 56(title bar)+16(space)
+    sidebar.Position = UDim2.new(0, 0, 0, 56)
     sidebar.CanvasSize = UDim2.new(0,0,0,0)
     sidebar.ScrollBarThickness = 4
     sidebar.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
@@ -206,7 +216,6 @@ function Library:CreateWindow(guiName, subtitle, version)
     sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
     sidebarList.Padding = UDim.new(0, 10)
 
-    -- Content
     local content = Instance.new("ScrollingFrame")
     content.Size = UDim2.new(1, -212, 1, -70)
     content.Position = UDim2.new(0, 200, 0, 70)
@@ -478,44 +487,23 @@ function Library:CreateWindow(guiName, subtitle, version)
             return sliderFrame
         end
 
-        -- COOLER DROPDOWN (animations, icons, highlight, borderless, shadow, rounded, etc.)
         function Tab:CreateDropdown(name, options, callback)
             options = options or {}
             callback = callback or function() end
 
             local dropdownFrame = Instance.new("Frame")
-            dropdownFrame.Size = UDim2.new(0, 180, 0, 38)
+            dropdownFrame.Size = UDim2.new(0, 160, 0, 34)
             dropdownFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-            dropdownFrame.BorderSizePixel = 0
-            createUICorner(dropdownFrame, UDim.new(0,8))
-
-            local shadow = Instance.new("ImageLabel")
-            shadow.Size = UDim2.new(1, 8, 1, 8)
-            shadow.Position = UDim2.new(0, -4, 0, -4)
-            shadow.BackgroundTransparency = 1
-            shadow.Image = "rbxassetid://1316045217" -- Roblox shadow asset
-            shadow.ImageTransparency = 0.5
-            shadow.ZIndex = dropdownFrame.ZIndex - 1
-            shadow.Parent = dropdownFrame
+            createUICorner(dropdownFrame, UDim.new(0,6))
 
             local dropdownLabel = Instance.new("TextLabel")
-            dropdownLabel.Size = UDim2.new(1, -30, 1, 0)
-            dropdownLabel.Position = UDim2.new(0, 10, 0, 0)
+            dropdownLabel.Size = UDim2.new(1,0,1,0)
             dropdownLabel.BackgroundTransparency = 1
             dropdownLabel.Text = "Select..."
             dropdownLabel.Font = Enum.Font.GothamMedium
-            dropdownLabel.TextSize = 16
+            dropdownLabel.TextSize = 15
             dropdownLabel.TextColor3 = Color3.fromRGB(255,255,255)
-            dropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
             dropdownLabel.Parent = dropdownFrame
-
-            local arrow = Instance.new("ImageLabel")
-            arrow.Size = UDim2.new(0, 18, 0, 18)
-            arrow.Position = UDim2.new(1, -26, 0.5, -9)
-            arrow.BackgroundTransparency = 1
-            arrow.Image = "rbxassetid://11341627463" -- Down arrow
-            arrow.ImageColor3 = Color3.fromRGB(200,200,200)
-            arrow.Parent = dropdownFrame
 
             local dropdownBtn = Instance.new("TextButton")
             dropdownBtn.Size = UDim2.new(1,0,1,0)
@@ -524,89 +512,45 @@ function Library:CreateWindow(guiName, subtitle, version)
             dropdownBtn.Parent = dropdownFrame
 
             local dropdownListFrame = Instance.new("Frame")
-            dropdownListFrame.Size = UDim2.new(1,0,0,#options*34)
+            dropdownListFrame.Size = UDim2.new(1,0,0,#options*28)
             dropdownListFrame.Position = UDim2.new(0,0,1,2)
-            dropdownListFrame.BackgroundColor3 = Color3.fromRGB(16, 0, 0)
+            dropdownListFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
             dropdownListFrame.Visible = false
             dropdownListFrame.Parent = dropdownFrame
-            dropdownListFrame.BorderSizePixel = 0
-            createUICorner(dropdownListFrame, UDim.new(0,8))
-            dropdownListFrame.ZIndex = dropdownFrame.ZIndex + 1
-
-            local listShadow = Instance.new("ImageLabel")
-            listShadow.Size = UDim2.new(1, 8, 1, 8)
-            listShadow.Position = UDim2.new(0, -4, 0, -4)
-            listShadow.BackgroundTransparency = 1
-            listShadow.Image = "rbxassetid://1316045217"
-            listShadow.ImageTransparency = 0.55
-            listShadow.ZIndex = dropdownListFrame.ZIndex - 1
-            listShadow.Parent = dropdownListFrame
+            createUIStroke(dropdownListFrame, Color3.fromRGB(255,0,0),1)
 
             local listLayout = Instance.new("UIListLayout", dropdownListFrame)
             listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            listLayout.Padding = UDim.new(0, 4)
 
-            for i, opt in ipairs(options) do
+            for _, opt in ipairs(options) do
                 local optBtn = Instance.new("TextButton")
-                optBtn.Size = UDim2.new(1, -8, 0, 30)
-                optBtn.Position = UDim2.new(0,4,0,0)
+                optBtn.Size = UDim2.new(1,0,0,28)
                 optBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
                 optBtn.Text = opt
                 optBtn.Font = Enum.Font.GothamMedium
                 optBtn.TextColor3 = Color3.fromRGB(255,255,255)
-                optBtn.TextSize = 16
-                optBtn.AutoButtonColor = true
-                createUICorner(optBtn, UDim.new(0,7))
+                optBtn.TextSize = 15
                 optBtn.Parent = dropdownListFrame
-
-                local checkIcon = Instance.new("ImageLabel")
-                checkIcon.Size = UDim2.new(0, 18, 0, 18)
-                checkIcon.Position = UDim2.new(1, -24, 0.5, -9)
-                checkIcon.BackgroundTransparency = 1
-                checkIcon.Image = "rbxassetid://6031068438" -- checkmark
-                checkIcon.ImageColor3 = Color3.fromRGB(0,200,0)
-                checkIcon.Visible = false
-                checkIcon.Parent = optBtn
-
-                optBtn.MouseEnter:Connect(function()
-                    TweenService:Create(optBtn, TweenInfo.new(0.15), {BackgroundColor3=Color3.fromRGB(60, 0, 0)}):Play()
-                end)
-                optBtn.MouseLeave:Connect(function()
-                    TweenService:Create(optBtn, TweenInfo.new(0.15), {BackgroundColor3=Color3.fromRGB(40, 40, 40)}):Play()
-                end)
                 optBtn.MouseButton1Click:Connect(function()
-                    dropdownLabel.Text = opt
-                    dropdownListFrame.Visible = false
-                    for _, child in ipairs(dropdownListFrame:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            child.BackgroundColor3 = Color3.fromRGB(40,40,40)
-                            child:FindFirstChildOfClass("ImageLabel").Visible = false
-                        end
+                    if not isPhone() then
+                        dropdownLabel.Text = opt
+                        dropdownListFrame.Visible = false
+                        pcall(callback, opt)
+                        if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
                     end
-                    optBtn.BackgroundColor3 = Color3.fromRGB(60,0,0)
-                    checkIcon.Visible = true
-                    pcall(callback, opt)
-                    if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
                 end)
                 optBtn.TouchTap:Connect(function()
-                    dropdownLabel.Text = opt
-                    dropdownListFrame.Visible = false
-                    for _, child in ipairs(dropdownListFrame:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            child.BackgroundColor3 = Color3.fromRGB(40,40,40)
-                            child:FindFirstChildOfClass("ImageLabel").Visible = false
-                        end
+                    if isPhone() then
+                        dropdownLabel.Text = opt
+                        dropdownListFrame.Visible = false
+                        pcall(callback, opt)
+                        if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
                     end
-                    optBtn.BackgroundColor3 = Color3.fromRGB(60,0,0)
-                    checkIcon.Visible = true
-                    pcall(callback, opt)
-                    if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
                 end)
             end
 
             local function onDropdownPress()
                 dropdownListFrame.Visible = not dropdownListFrame.Visible
-                TweenService:Create(arrow, TweenInfo.new(0.17), {Rotation = dropdownListFrame.Visible and 180 or 0}):Play()
             end
 
             createRow(tabFrame, name..":", dropdownFrame, function()
