@@ -1,15 +1,14 @@
--- DarkMirror Classic UI Library (Full with Global Callback Support + Scrollable Tabs & Content)
+-- DarkMirror Classic UI Library (Enhanced)
 -- Usage:
 -- local DM = loadstring(game:HttpGet("YOUR_RAW_URL_HERE"))()
--- local win = DM:CreateWindow("DarkMirrorClassicUI", "ClassicBruh", "v1.0")
+-- local win = DM:CreateWindow("DarkMirror", "Example UI", "v1.0")
 -- local home = win:CreateTab("Home")
--- home:CreateSection("Main Features Section")
--- home:CreateToggle("Toggle Feature", function(state) print("Toggle", state) end)
--- home:CreateSlider("Main Slider", 0, 100, function(v) print("Slider", v) end)
--- home:CreateDropdown("Dropdown", {"Option 1","Option 2"}, function(opt) print("Drop", opt) end)
--- home:CreateTextbox("Textbox", "Type here...", function(txt) print("Text", txt) end)
--- home:CreateButton("Submit", function() print("Submit pressed") end)
--- DM:SetCallback(function(elementType, name, value) print("Global", elementType, name, value) end)
+-- home:CreateSection("Main Features")
+-- home:CreateToggle("God Mode", function(state) print("God Mode:", state) end)
+-- home:CreateSlider("Speed", 1, 50, 10, function(val) print("Speed:", val) end)
+-- home:CreateDropdown("Weapon", {"Sword", "Gun", "Bow"}, function(opt) print("Selected:", opt) end)
+-- home:CreateTextbox("Nickname", "Enter your name...", function(txt) print("Nickname:", txt) end)
+-- home:CreateButton("Submit", function() print("Submitted!") end)
 
 local Library = {}
 Library.__index = Library
@@ -37,7 +36,7 @@ baseScreenGui.Name = "DarkMirrorClassicUILib"
 baseScreenGui.Parent = playerGui
 baseScreenGui.ResetOnSpawn = false
 
--- Show/Hide draggable button (shared)
+-- Show/Hide draggable button
 local showHideBtn = Instance.new("ImageButton")
 showHideBtn.Size = UDim2.new(0, 60, 0, 60)
 showHideBtn.Position = UDim2.new(0, 24, 0.5, -30)
@@ -51,7 +50,7 @@ local showHideBtnStroke = Instance.new("UIStroke", showHideBtn)
 showHideBtnStroke.Color = Color3.fromRGB(255, 0, 0)
 showHideBtnStroke.Thickness = 2
 
--- Make Show/Hide Button draggable on PC & Mobile
+-- Make Show/Hide Button draggable
 do
     local dragging, dragInput, dragStart, startPos
     local function updateDrag(input)
@@ -101,6 +100,21 @@ local function createUIStroke(instance, color, thickness)
     return s
 end
 
+local function createUIGradient(instance)
+    local grad = Instance.new("UIGradient")
+    grad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(10,10,10)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60,0,20)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(16,0,0))
+    }
+    grad.Transparency = NumberSequence.new{
+        NumberSequenceKeypoint.new(0, 0),
+        NumberSequenceKeypoint.new(1, 0)
+    }
+    grad.Parent = instance
+    return grad
+end
+
 -- Library constructor: CreateWindow
 function Library:CreateWindow(guiName, subtitle, version)
     local Window = {}
@@ -116,14 +130,16 @@ function Library:CreateWindow(guiName, subtitle, version)
     mainFrame.Name = guiName or "DarkMirrorClassicUI"
     createUICorner(mainFrame, UDim.new(0,8))
 
-    -- Title Bar
+    -- Title Bar (DarkMirror theme)
     local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, 44)
+    titleBar.Size = UDim2.new(1, 0, 0, 46)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
-    titleBar.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+    titleBar.BackgroundColor3 = Color3.fromRGB(30, 0, 15)
     titleBar.Parent = mainFrame
     titleBar.Name = "TitleBar"
     createUICorner(titleBar, UDim.new(0,8))
+    createUIStroke(titleBar, Color3.fromRGB(90,10,20), 2)
+    createUIGradient(titleBar)
     titleBar.ZIndex = 2
 
     local titleLabel = Instance.new("TextLabel")
@@ -132,8 +148,9 @@ function Library:CreateWindow(guiName, subtitle, version)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = guiName or "DarkMirrorClassicUI"
     titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextSize = 22
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextSize = 23
+    titleLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
+    titleLabel.TextStrokeTransparency = 0.5
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Parent = titleBar
     titleLabel.ZIndex = 3
@@ -145,7 +162,8 @@ function Library:CreateWindow(guiName, subtitle, version)
     subtitleLabel.Text = subtitle or ""
     subtitleLabel.Font = Enum.Font.Gotham
     subtitleLabel.TextSize = 16
-    subtitleLabel.TextColor3 = Color3.fromRGB(255, 200, 200)
+    subtitleLabel.TextColor3 = Color3.fromRGB(255, 160, 160)
+    subtitleLabel.TextStrokeTransparency = 0.7
     subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     subtitleLabel.Parent = titleBar
     subtitleLabel.ZIndex = 3
@@ -157,7 +175,8 @@ function Library:CreateWindow(guiName, subtitle, version)
     versionLabel.Text = version or ""
     versionLabel.Font = Enum.Font.GothamBold
     versionLabel.TextSize = 14
-    versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    versionLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+    versionLabel.TextStrokeTransparency = 0.8
     versionLabel.TextXAlignment = Enum.TextXAlignment.Right
     versionLabel.Parent = titleBar
     versionLabel.ZIndex = 3
@@ -196,10 +215,10 @@ function Library:CreateWindow(guiName, subtitle, version)
         end)
     end
 
-    -- Make sidebar scrollable if tabs overflow
+    -- Sidebar
     local sidebar = Instance.new("ScrollingFrame")
-    sidebar.Size = UDim2.new(0, 154, 1, -44)
-    sidebar.Position = UDim2.new(0, 0, 0, 44)
+    sidebar.Size = UDim2.new(0, 154, 1, -46)
+    sidebar.Position = UDim2.new(0, 0, 0, 46)
     sidebar.CanvasSize = UDim2.new(0,0,0,0)
     sidebar.ScrollBarThickness = 4
     sidebar.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
@@ -209,15 +228,16 @@ function Library:CreateWindow(guiName, subtitle, version)
     sidebar.Name = "Sidebar"
     sidebar.AutomaticCanvasSize = Enum.AutomaticSize.Y
     sidebar.ZIndex = 2
+    createUICorner(sidebar, UDim.new(0,8))
 
     local sidebarList = Instance.new("UIListLayout", sidebar)
     sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
     sidebarList.Padding = UDim.new(0, 8)
 
-    -- Content area is now a ScrollingFrame to allow scroll if elements overflow
+    -- Content area
     local content = Instance.new("ScrollingFrame")
-    content.Size = UDim2.new(1, -166, 1, -54)
-    content.Position = UDim2.new(0, 154, 0, 54)
+    content.Size = UDim2.new(1, -166, 1, -56)
+    content.Position = UDim2.new(0, 154, 0, 56)
     content.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     content.BackgroundTransparency = 0.35
     content.Parent = mainFrame
@@ -287,14 +307,15 @@ function Library:CreateWindow(guiName, subtitle, version)
         local Tab = {}
         Tab.__index = Tab
 
+        -- Insert element at correct position
         local function createRow(parent, labelText, element)
             local row = Instance.new("Frame")
-            row.Size = UDim2.new(0.9, 0, 0, 40)
+            row.Size = UDim2.new(0.93, 0, 0, 40)
             row.BackgroundTransparency = 1
             row.Parent = parent
 
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(0.6, 0, 1, 0)
+            label.Size = UDim2.new(0.55, 0, 1, 0)
             label.BackgroundTransparency = 1
             label.Text = labelText
             label.Font = Enum.Font.GothamBold
@@ -310,19 +331,26 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if element.Size.Y.Offset then elHeight = element.Size.Y.Offset end
             end
             element.Position = UDim2.new(1, -elWidth, 0.5, -elHeight/2)
+            return row
         end
 
         function Tab:CreateSection(sectionTitle)
+            local sectionRow = Instance.new("Frame")
+            sectionRow.Size = UDim2.new(0.93, 0, 0, 32)
+            sectionRow.BackgroundTransparency = 1
+            sectionRow.Parent = tabFrame
+
             local sectionLabel = Instance.new("TextLabel")
-            sectionLabel.Size = UDim2.new(0.9, 0, 0, 32)
+            sectionLabel.Size = UDim2.new(1, 0, 1, 0)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.Text = sectionTitle
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextSize = 20
             sectionLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+            sectionLabel.TextStrokeTransparency = 0.8
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
-            sectionLabel.Parent = tabFrame
-            return sectionLabel
+            sectionLabel.Parent = sectionRow
+            return sectionRow
         end
 
         -- Toggle
@@ -332,18 +360,32 @@ function Library:CreateWindow(guiName, subtitle, version)
             toggleSwitch.Size = UDim2.new(0, 40, 0, 18)
             toggleSwitch.BackgroundColor3 = Color3.fromRGB(60,0,0)
             toggleSwitch.Text = ""
-            toggleSwitch.AutoButtonColor = false
+            toggleSwitch.AutoButtonColor = true
             createUICorner(toggleSwitch, UDim.new(1,0))
+            toggleSwitch.ZIndex = 10
+
+            -- Hover feedback
+            toggleSwitch.MouseEnter:Connect(function()
+                if toggleSwitch.BackgroundColor3 == Color3.fromRGB(60,0,0) then
+                    toggleSwitch.BackgroundColor3 = Color3.fromRGB(90,0,20)
+                end
+            end)
+            toggleSwitch.MouseLeave:Connect(function()
+                if toggleSwitch.BackgroundColor3 == Color3.fromRGB(90,0,20) then
+                    toggleSwitch.BackgroundColor3 = Color3.fromRGB(60,0,0)
+                end
+            end)
+
             local switchCircle = Instance.new("Frame")
             switchCircle.Size = UDim2.new(0, 13, 1, -4)
             switchCircle.Position = UDim2.new(0, 2, 0, 2)
             switchCircle.BackgroundColor3 = Color3.fromRGB(255,255,255)
             switchCircle.Parent = toggleSwitch
             createUICorner(switchCircle, UDim.new(1,0))
+            switchCircle.ZIndex = 11
 
             local toggleOn = false
-            toggleSwitch.MouseButton1Click:Connect(function()
-                toggleOn = not toggleOn
+            local function updateToggle()
                 if toggleOn then
                     TweenService:Create(toggleSwitch,TweenInfo.new(0.25),{BackgroundColor3=Color3.fromRGB(255,0,0)}):Play()
                     TweenService:Create(switchCircle,TweenInfo.new(0.25),{Position=UDim2.new(1,-15,0,2)}):Play()
@@ -351,10 +393,31 @@ function Library:CreateWindow(guiName, subtitle, version)
                     TweenService:Create(toggleSwitch,TweenInfo.new(0.25),{BackgroundColor3=Color3.fromRGB(60,0,0)}):Play()
                     TweenService:Create(switchCircle,TweenInfo.new(0.25),{Position=UDim2.new(0,2,0,2)}):Play()
                 end
+            end
+
+            toggleSwitch.MouseButton1Click:Connect(function()
+                toggleOn = not toggleOn
+                updateToggle()
                 pcall(callback, toggleOn)
                 if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
             end)
-            createRow(tabFrame, name..":", toggleSwitch)
+
+            -- Make toggle row clickable
+            local row = createRow(tabFrame, name..":", toggleSwitch)
+            row.BackgroundTransparency = 0.85
+            row.BackgroundColor3 = Color3.fromRGB(20,0,0)
+            local rowBtn = Instance.new("TextButton")
+            rowBtn.Size = UDim2.new(1,0,1,0)
+            rowBtn.BackgroundTransparency = 1
+            rowBtn.Text = ""
+            rowBtn.Parent = row
+            rowBtn.ZIndex = 12
+            rowBtn.MouseButton1Click:Connect(function()
+                toggleOn = not toggleOn
+                updateToggle()
+                pcall(callback, toggleOn)
+                if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
+            end)
             return toggleSwitch
         end
 
