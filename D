@@ -112,7 +112,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     titleLabel.Position = UDim2.new(0, 16, 0, 8)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = guiName or "DarkMirrorClassicUI"
-    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Font = Enum.Font.Bangers
     titleLabel.TextSize = 23
     titleLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
     titleLabel.TextStrokeTransparency = 0.5
@@ -125,7 +125,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     subtitleLabel.Position = UDim2.new(0, 18, 0, 28)
     subtitleLabel.BackgroundTransparency = 1
     subtitleLabel.Text = subtitle or ""
-    subtitleLabel.Font = Enum.Font.Gotham
+    subtitleLabel.Font = Enum.Font.Bangers
     subtitleLabel.TextSize = 16
     subtitleLabel.TextColor3 = Color3.fromRGB(255, 160, 160)
     subtitleLabel.TextStrokeTransparency = 0.7
@@ -138,7 +138,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     versionLabel.Position = UDim2.new(1, -80, 0, 14)
     versionLabel.BackgroundTransparency = 1
     versionLabel.Text = version or ""
-    versionLabel.Font = Enum.Font.GothamBold
+    versionLabel.Font = Enum.Font.Bangers
     versionLabel.TextSize = 14
     versionLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
     versionLabel.TextStrokeTransparency = 0.8
@@ -254,7 +254,7 @@ function Library:CreateWindow(guiName, subtitle, version)
         btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         btn.Text = name
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Font = Enum.Font.GothamBold
+        btn.Font = Enum.Font.Bangers
         btn.TextSize = 17
         btn.TextXAlignment = Enum.TextXAlignment.Left
         btn.Parent = sidebar
@@ -294,7 +294,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             label.Size = UDim2.new(0.5, 0, 1, 0)
             label.BackgroundTransparency = 1
             label.Text = labelText
-            label.Font = Enum.Font.GothamBold
+            label.Font = Enum.Font.Bangers
             label.TextSize = 16
             label.TextColor3 = Color3.fromRGB(255,255,255)
             label.TextXAlignment = Enum.TextXAlignment.Left
@@ -320,7 +320,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             sectionLabel.Size = UDim2.new(1, 0, 1, 0)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.Text = sectionTitle
-            sectionLabel.Font = Enum.Font.GothamBold
+            sectionLabel.Font = Enum.Font.Creepster
             sectionLabel.TextSize = 17
             sectionLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
             sectionLabel.TextStrokeTransparency = 0.8
@@ -417,7 +417,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             sliderValueLabel.Position = UDim2.new(1,8,0,0)
             sliderValueLabel.BackgroundTransparency = 1
             sliderValueLabel.Text = tostring(default)
-            sliderValueLabel.Font = Enum.Font.GothamBold
+            sliderValueLabel.Font = Enum.Font.Creepster
             sliderValueLabel.TextColor3 = Color3.fromRGB(255,255,255)
             sliderValueLabel.TextSize = 14
             sliderValueLabel.Parent = sliderFrame
@@ -503,7 +503,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             dropdownLabel.Size = UDim2.new(1,0,1,0)
             dropdownLabel.BackgroundTransparency = 1
             dropdownLabel.Text = "Select..."
-            dropdownLabel.Font = Enum.Font.GothamBold
+            dropdownLabel.Font = Enum.Font.Bangers
             dropdownLabel.TextSize = 14
             dropdownLabel.TextColor3 = Color3.fromRGB(255,255,255)
             dropdownLabel.Parent = dropdownFrame
@@ -582,7 +582,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             tb.BackgroundColor3 = Color3.fromRGB(30,30,30)
             tb.Text = ""
             tb.PlaceholderText = placeholder
-            tb.Font = Enum.Font.GothamBold
+            tb.Font = Enum.Font.Bangers
             tb.TextSize = 14
             tb.TextColor3 = Color3.fromRGB(255,255,255)
             createUICorner(tb, UDim.new(0,8))
@@ -610,7 +610,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             btn.Size = UDim2.new(0,100,0,30)
             btn.BackgroundColor3 = Color3.fromRGB(60,0,0)
             btn.Text = name
-            btn.Font = Enum.Font.GothamBold
+            btn.Font = Enum.Font.Creepster
             btn.TextSize = 14
             btn.TextColor3 = Color3.fromRGB(255,255,255)
             createUICorner(btn, UDim.new(0,8))
