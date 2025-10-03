@@ -13,8 +13,8 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-local defaultShowIcon = "rbxassetid://YOUR_SHOW_ICON_ID"
-local defaultHideIcon = "rbxassetid://YOUR_HIDE_ICON_ID"
+local defaultShowIcon = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=94371101129415"
+local defaultHideIcon = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=94371101129415"
 
 local baseScreenGui = Instance.new("ScreenGui")
 baseScreenGui.Name = "DarkMirrorClassicUILib"
