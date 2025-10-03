@@ -1,5 +1,10 @@
 -- DarkMirror UI Library
--- Cooler dropdown, title bar without border, tabs lined up with spacing below title bar
+-- Features:
+--  - Resizable UI (bottom-right corner, min size: Vector2.new(250, 346))
+--  - Animated button press
+--  - Black dropdown with checkmark/highlight
+--  - Title bar full width, sharp edges, no border
+--  - Tabs spaced below title bar
 
 local Library = {}
 Library.__index = Library
@@ -36,6 +41,7 @@ local showHideBtnStroke = Instance.new("UIStroke", showHideBtn)
 showHideBtnStroke.Color = Color3.fromRGB(255, 0, 0)
 showHideBtnStroke.Thickness = 2
 
+-- Make Show/Hide Button draggable
 do
     local dragging, dragInput, dragStart, startPos
     local function updateDrag(input)
@@ -95,6 +101,8 @@ function Library:CreateWindow(guiName, subtitle, version)
     local Window = {}
     Window.__index = Window
 
+    local minSize = Vector2.new(250, 346)
+
     local screenGui = baseScreenGui
     local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 600, 0, 420)
@@ -104,6 +112,47 @@ function Library:CreateWindow(guiName, subtitle, version)
     mainFrame.Parent = screenGui
     mainFrame.Name = guiName or "DarkMirrorClassicUI"
     createUICorner(mainFrame, UDim.new(0,8))
+
+    Window.MainFrame = mainFrame -- expose for example code
+
+    -- RESIZE HANDLE (bottom-right corner)
+    local resizeHandle = Instance.new("Frame")
+    resizeHandle.Name = "ResizeHandle"
+    resizeHandle.Size = UDim2.new(0, 24, 0, 24)
+    resizeHandle.Position = UDim2.new(1, -24, 1, -24)
+    resizeHandle.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+    resizeHandle.BackgroundTransparency = 0.5
+    resizeHandle.Parent = mainFrame
+    resizeHandle.ZIndex = 100
+    createUICorner(resizeHandle, UDim.new(0, 8))
+
+    local resizeIcon = Instance.new("ImageLabel")
+    resizeIcon.Image = "rbxassetid://6031094678"
+    resizeIcon.Size = UDim2.new(0,18,0,18)
+    resizeIcon.Position = UDim2.new(0.5,-9,0.5,-9)
+    resizeIcon.BackgroundTransparency = 1
+    resizeIcon.Parent = resizeHandle
+
+    local resizeDragging = false
+    local resizeStart, frameStartSize
+    resizeHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            resizeDragging = true
+            resizeStart = input.Position
+            frameStartSize = mainFrame.Size
+        end
+    end)
+    resizeHandle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            resizeDragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if resizeDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - resizeStart
+            mainFrame.Size = UDim2.new(0, math.max(minSize.X, frameStartSize.X.Offset + delta.X), 0, math.max(minSize.Y, frameStartSize.Y.Offset + delta.Y))
+        end
+    end)
 
     -- Title Bar: full width, sharp edges, NO border
     local titleBar = Instance.new("Frame")
@@ -206,7 +255,6 @@ function Library:CreateWindow(guiName, subtitle, version)
     sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
     sidebarList.Padding = UDim.new(0, 10)
 
-    -- Content
     local content = Instance.new("ScrollingFrame")
     content.Size = UDim2.new(1, -212, 1, -70)
     content.Position = UDim2.new(0, 200, 0, 70)
@@ -229,7 +277,6 @@ function Library:CreateWindow(guiName, subtitle, version)
         showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
     end)
 
-    -- Detect if device is phone
     local function isPhone()
         return UserInputService.TouchEnabled
     end
@@ -478,14 +525,14 @@ function Library:CreateWindow(guiName, subtitle, version)
             return sliderFrame
         end
 
-        -- COOLER DROPDOWN (animations, icons, highlight, borderless, shadow, rounded, etc.)
+        -- Black Dropdown, checkmark, highlight, animation, shadow, etc.
         function Tab:CreateDropdown(name, options, callback)
             options = options or {}
             callback = callback or function() end
 
             local dropdownFrame = Instance.new("Frame")
             dropdownFrame.Size = UDim2.new(0, 180, 0, 38)
-            dropdownFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+            dropdownFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
             dropdownFrame.BorderSizePixel = 0
             createUICorner(dropdownFrame, UDim.new(0,8))
 
@@ -493,7 +540,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             shadow.Size = UDim2.new(1, 8, 1, 8)
             shadow.Position = UDim2.new(0, -4, 0, -4)
             shadow.BackgroundTransparency = 1
-            shadow.Image = "rbxassetid://1316045217" -- Roblox shadow asset
+            shadow.Image = "rbxassetid://1316045217"
             shadow.ImageTransparency = 0.5
             shadow.ZIndex = dropdownFrame.ZIndex - 1
             shadow.Parent = dropdownFrame
@@ -513,7 +560,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             arrow.Size = UDim2.new(0, 18, 0, 18)
             arrow.Position = UDim2.new(1, -26, 0.5, -9)
             arrow.BackgroundTransparency = 1
-            arrow.Image = "rbxassetid://11341627463" -- Down arrow
+            arrow.Image = "rbxassetid://11341627463"
             arrow.ImageColor3 = Color3.fromRGB(200,200,200)
             arrow.Parent = dropdownFrame
 
@@ -526,7 +573,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             local dropdownListFrame = Instance.new("Frame")
             dropdownListFrame.Size = UDim2.new(1,0,0,#options*34)
             dropdownListFrame.Position = UDim2.new(0,0,1,2)
-            dropdownListFrame.BackgroundColor3 = Color3.fromRGB(16, 0, 0)
+            dropdownListFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
             dropdownListFrame.Visible = false
             dropdownListFrame.Parent = dropdownFrame
             dropdownListFrame.BorderSizePixel = 0
@@ -563,7 +610,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 checkIcon.Size = UDim2.new(0, 18, 0, 18)
                 checkIcon.Position = UDim2.new(1, -24, 0.5, -9)
                 checkIcon.BackgroundTransparency = 1
-                checkIcon.Image = "rbxassetid://6031068438" -- checkmark
+                checkIcon.Image = "rbxassetid://6031068438"
                 checkIcon.ImageColor3 = Color3.fromRGB(0,200,0)
                 checkIcon.Visible = false
                 checkIcon.Parent = optBtn
@@ -642,31 +689,36 @@ function Library:CreateWindow(guiName, subtitle, version)
             return tb
         end
 
+        -- Animated button press
         function Tab:CreateButton(name, callback)
             callback = callback or function() end
             local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(0,160,0,36)
+            btn.Size = UDim2.new(0,160,0,40)
             btn.BackgroundColor3 = Color3.fromRGB(60,0,0)
             btn.Text = name
             btn.Font = Enum.Font.GothamBold
-            btn.TextSize = 16
+            btn.TextSize = 18
             btn.TextColor3 = Color3.fromRGB(255,255,255)
-            createUICorner(btn, UDim.new(0,6))
+            createUICorner(btn, UDim.new(0,8))
+
+            local function animatePress()
+                TweenService:Create(btn, TweenInfo.new(0.13), {BackgroundColor3 = Color3.fromRGB(255,40,40)}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(60,0,0)}):Play()
+            end
 
             btn.MouseButton1Click:Connect(function()
-                if not isPhone() then
-                    pcall(callback)
-                    if globalCallback then pcall(globalCallback, "Button", name, true) end
-                end
+                animatePress()
+                pcall(callback)
+                if globalCallback then pcall(globalCallback, "Button", name, true) end
             end)
             btn.TouchTap:Connect(function()
-                if isPhone() then
-                    pcall(callback)
-                    if globalCallback then pcall(globalCallback, "Button", name, true) end
-                end
+                animatePress()
+                pcall(callback)
+                if globalCallback then pcall(globalCallback, "Button", name, true) end
             end)
             createRow(tabFrame, name..":", btn, function()
                 if isPhone() then
+                    animatePress()
                     pcall(callback)
                     if globalCallback then pcall(globalCallback, "Button", name, true) end
                 end
