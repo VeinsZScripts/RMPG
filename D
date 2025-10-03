@@ -1,4 +1,4 @@
--- DarkMirror UI Library (Fully Pressable Elements, Mobile-Friendly Slider & Dropdown)
+-- DarkMirror UI Library (Mobile-Only Pressable Elements, Mobile-Friendly Slider & Dropdown)
 local Library = {}
 Library.__index = Library
 
@@ -44,7 +44,7 @@ do
         )
     end
     showHideBtn.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = showHideBtn.Position
@@ -56,7 +56,7 @@ do
         end
     end)
     showHideBtn.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
@@ -155,7 +155,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             )
         end
         titleBar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
                 dragStart = input.Position
                 startPos = mainFrame.Position
@@ -167,7 +167,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             end
         end)
         titleBar.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            if input.UserInputType == Enum.UserInputType.Touch then
                 dragInput = input
             end
         end)
@@ -212,7 +212,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     local sidebarButtons = {}
 
     local uiVisible = true
-    showHideBtn.MouseButton1Click:Connect(function()
+    showHideBtn.TouchTap:Connect(function()
         uiVisible = not uiVisible
         mainFrame.Visible = uiVisible
         showHideBtn.Image = uiVisible and defaultHideIcon or defaultShowIcon
@@ -250,7 +250,7 @@ function Library:CreateWindow(guiName, subtitle, version)
         btn.Parent = sidebar
         btn.ZIndex = 4
 
-        btn.MouseButton1Click:Connect(function()
+        btn.TouchTap:Connect(function()
             for _, f in pairs(tabFrames) do f.Visible = false end
             tabFrame.Visible = true
             for _, b in pairs(sidebarButtons) do b.BackgroundColor3 = Color3.fromRGB(30, 30, 30) end
@@ -297,11 +297,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             rowBtn.Text = ""
             rowBtn.Parent = row
             rowBtn.ZIndex = 12
-            -- Ensure the rowBtn is pressable and fires the callback!
             if onPress then
-                rowBtn.MouseButton1Click:Connect(function()
-                    onPress()
-                end)
                 rowBtn.TouchTap:Connect(function()
                     onPress()
                 end)
@@ -364,8 +360,6 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
             end
 
-            -- Make the toggleSwitch itself pressable
-            toggleSwitch.MouseButton1Click:Connect(onTogglePress)
             toggleSwitch.TouchTap:Connect(onTogglePress)
             createRow(tabFrame, name..":", toggleSwitch, onTogglePress)
             return toggleSwitch
@@ -433,37 +427,19 @@ function Library:CreateWindow(guiName, subtitle, version)
                 onSliderPress(input)
             end)
 
-            sliderThumb.InputBegan:Connect(function(input)
-                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    onSliderPress(input)
-                end
-            end)
-            sliderThumb.InputEnded:Connect(function(input)
-                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    stopSliderDrag()
-                end
-            end)
-            sliderFrame.InputBegan:Connect(function(input)
-                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    onSliderPress(input)
-                end
-            end)
-            sliderFrame.InputEnded:Connect(function(input)
-                if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-                    stopSliderDrag()
-                end
-            end)
-            rowBtn.MouseButton1Down:Connect(function(input)
+            sliderThumb.TouchTap:Connect(function(input)
                 onSliderPress(input)
             end)
-            rowBtn.MouseButton1Up:Connect(stopSliderDrag)
+            sliderFrame.TouchTap:Connect(function(input)
+                onSliderPress(input)
+            end)
             rowBtn.TouchTap:Connect(function()
                 local pos = UserInputService:GetMouseLocation()
                 updateSlider(pos.X)
                 draggingSlider = false
             end)
             UserInputService.InputChanged:Connect(function(input)
-                if draggingSlider and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
+                if draggingSlider and input.UserInputType == Enum.UserInputType.Touch then
                     updateSlider(input.Position.X)
                 end
             end)
@@ -521,12 +497,6 @@ function Library:CreateWindow(guiName, subtitle, version)
                 optBtn.TextColor3 = Color3.fromRGB(255,255,255)
                 optBtn.TextSize = 14
                 optBtn.Parent = dropdownListFrame
-                optBtn.MouseButton1Click:Connect(function()
-                    dropdownLabel.Text = opt
-                    dropdownListFrame.Visible = false
-                    pcall(callback, opt)
-                    if globalCallback then pcall(globalCallback, "Dropdown", name, opt) end
-                end)
                 optBtn.TouchTap:Connect(function()
                     dropdownLabel.Text = opt
                     dropdownListFrame.Visible = false
@@ -539,7 +509,6 @@ function Library:CreateWindow(guiName, subtitle, version)
                 dropdownListFrame.Visible = not dropdownListFrame.Visible
             end
 
-            dropdownBtn.MouseButton1Click:Connect(onDropdownPress)
             dropdownBtn.TouchTap:Connect(onDropdownPress)
             createRow(tabFrame, name..":", dropdownFrame, onDropdownPress)
             return dropdownFrame
@@ -580,10 +549,6 @@ function Library:CreateWindow(guiName, subtitle, version)
             btn.TextColor3 = Color3.fromRGB(255,255,255)
             createUICorner(btn, UDim.new(0,6))
 
-            btn.MouseButton1Click:Connect(function()
-                pcall(callback)
-                if globalCallback then pcall(globalCallback, "Button", name, true) end
-            end)
             btn.TouchTap:Connect(function()
                 pcall(callback)
                 if globalCallback then pcall(globalCallback, "Button", name, true) end
