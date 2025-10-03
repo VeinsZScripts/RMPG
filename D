@@ -1,4 +1,4 @@
--- DarkMirror UI Library (Sharp Titlebar, Larger UI, Tighter Elements)
+-- DarkMirror UI Library (Sharp Titlebar, Tighter Elements, Super Sharp Design)
 
 local Library = {}
 Library.__index = Library
@@ -113,7 +113,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     mainFrame.Name = guiName or "DarkMirrorClassicUI"
     createUICorner(mainFrame, UDim.new(0,8))
 
-    -- SHARP TITLE BAR (no UICorner)
+    -- SUPER SHARP TITLE BAR (no UICorner, no rounding, pure rectangle)
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 50)
     titleBar.Position = UDim2.new(0, 0, 0, 0)
@@ -121,6 +121,7 @@ function Library:CreateWindow(guiName, subtitle, version)
     titleBar.Parent = mainFrame
     titleBar.Name = "TitleBar"
     -- NO createUICorner(titleBar, ...)
+    -- NO padding, pure rectangle
     createUIStroke(titleBar, Color3.fromRGB(90,10,20), 2)
     createUIGradient(titleBar)
     titleBar.ZIndex = 2
@@ -213,7 +214,7 @@ function Library:CreateWindow(guiName, subtitle, version)
 
     local sidebarList = Instance.new("UIListLayout", sidebar)
     sidebarList.SortOrder = Enum.SortOrder.LayoutOrder
-    sidebarList.Padding = UDim.new(0, 7) -- slightly closer
+    sidebarList.Padding = UDim.new(0, 2) -- << TIGHTER: sidebar buttons closer
 
     local content = Instance.new("ScrollingFrame")
     content.Size = UDim2.new(1, -184, 1, -62)
@@ -252,14 +253,14 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         local layout = Instance.new("UIListLayout", tabFrame)
         layout.FillDirection = Enum.FillDirection.Vertical
-        layout.Padding = UDim.new(0, 6)  -- tighter: less vertical spacing
+        layout.Padding = UDim.new(0, 2)  -- << TIGHTER: less vertical spacing
         layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
         layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
         tabFrames[name] = tabFrame
 
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, -12, 0, 36)
+        btn.Size = UDim2.new(1, -12, 0, 32) -- << Shorter height for tighter look
         btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         btn.Text = name
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -287,7 +288,7 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         local function createRow(parent, labelText, element, onPress)
             local row = Instance.new("Frame")
-            row.Size = UDim2.new(0.95, 0, 0, 36)
+            row.Size = UDim2.new(0.95, 0, 0, 28) -- << Shorter height for tighter rows
             row.BackgroundTransparency = 0.85
             row.BackgroundColor3 = Color3.fromRGB(20,0,0)
             row.Parent = parent
@@ -325,7 +326,7 @@ function Library:CreateWindow(guiName, subtitle, version)
 
         function Tab:CreateSection(sectionTitle)
             local sectionRow = Instance.new("Frame")
-            sectionRow.Size = UDim2.new(0.95, 0, 0, 30)
+            sectionRow.Size = UDim2.new(0.95, 0, 0, 22) -- << Shorter section row
             sectionRow.BackgroundTransparency = 1
             sectionRow.Parent = tabFrame
 
@@ -334,7 +335,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.Text = sectionTitle
             sectionLabel.Font = Enum.Font.GothamBold
-            sectionLabel.TextSize = 18
+            sectionLabel.TextSize = 16 -- << Slightly smaller text
             sectionLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
             sectionLabel.TextStrokeTransparency = 0.8
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -345,7 +346,7 @@ function Library:CreateWindow(guiName, subtitle, version)
         function Tab:CreateToggle(name, callback)
             callback = callback or function() end
             local toggleSwitch = Instance.new("TextButton")
-            toggleSwitch.Size = UDim2.new(0, 40, 0, 18)
+            toggleSwitch.Size = UDim2.new(0, 32, 0, 14) -- << Smaller toggle
             toggleSwitch.BackgroundColor3 = Color3.fromRGB(60,0,0)
             toggleSwitch.Text = ""
             toggleSwitch.AutoButtonColor = true
@@ -353,8 +354,8 @@ function Library:CreateWindow(guiName, subtitle, version)
             toggleSwitch.ZIndex = 10
 
             local switchCircle = Instance.new("Frame")
-            switchCircle.Size = UDim2.new(0, 13, 1, -4)
-            switchCircle.Position = UDim2.new(0, 2, 0, 2)
+            switchCircle.Size = UDim2.new(0, 10, 1, -3)
+            switchCircle.Position = UDim2.new(0, 2, 0, 1)
             switchCircle.BackgroundColor3 = Color3.fromRGB(255,255,255)
             switchCircle.Parent = toggleSwitch
             createUICorner(switchCircle, UDim.new(1,0))
@@ -364,10 +365,10 @@ function Library:CreateWindow(guiName, subtitle, version)
             local function updateToggle()
                 if toggleOn then
                     TweenService:Create(toggleSwitch,TweenInfo.new(0.25),{BackgroundColor3=Color3.fromRGB(255,0,0)}):Play()
-                    TweenService:Create(switchCircle,TweenInfo.new(0.25),{Position=UDim2.new(1,-15,0,2)}):Play()
+                    TweenService:Create(switchCircle,TweenInfo.new(0.25),{Position=UDim2.new(1,-12,0,1)}):Play()
                 else
                     TweenService:Create(toggleSwitch,TweenInfo.new(0.25),{BackgroundColor3=Color3.fromRGB(60,0,0)}):Play()
-                    TweenService:Create(switchCircle,TweenInfo.new(0.25),{Position=UDim2.new(0,2,0,2)}):Play()
+                    TweenService:Create(switchCircle,TweenInfo.new(0.25),{Position=UDim2.new(0,2,0,1)}):Play()
                 end
             end
 
@@ -393,20 +394,20 @@ function Library:CreateWindow(guiName, subtitle, version)
             callback = callback or function() end
 
             local sliderFrame = Instance.new("Frame")
-            sliderFrame.Size = UDim2.new(0, 160, 0, 10)
+            sliderFrame.Size = UDim2.new(0, 120, 0, 8) -- << Smaller slider
             sliderFrame.BackgroundColor3 = Color3.fromRGB(80,0,0)
             createUICorner(sliderFrame, UDim.new(1,0))
 
             local sliderThumb = Instance.new("Frame")
-            sliderThumb.Size = UDim2.new(0,14,0,14)
-            sliderThumb.Position = UDim2.new(0,0,-0.2,-2)
+            sliderThumb.Size = UDim2.new(0,10,0,10)
+            sliderThumb.Position = UDim2.new(0,0,-0.1,-1)
             sliderThumb.BackgroundColor3 = Color3.fromRGB(255,255,255)
             sliderThumb.Parent = sliderFrame
             createUICorner(sliderThumb, UDim.new(1,0))
 
             local sliderValueLabel = Instance.new("TextLabel")
-            sliderValueLabel.Size = UDim2.new(0,30,1,0)
-            sliderValueLabel.Position = UDim2.new(1,6,0,-2)
+            sliderValueLabel.Size = UDim2.new(0,24,1,0)
+            sliderValueLabel.Position = UDim2.new(1,4,0,-1)
             sliderValueLabel.BackgroundTransparency = 1
             sliderValueLabel.Text = tostring(default)
             sliderValueLabel.Font = Enum.Font.GothamBold
@@ -423,7 +424,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if absSizeX > 0 then
                     relativeX = math.clamp((inputX - absPosX)/absSizeX, 0, 1)
                 end
-                sliderThumb.Position = UDim2.new(relativeX, -7, -0.2, -2)
+                sliderThumb.Position = UDim2.new(relativeX, -5, -0.1, -1)
                 sliderValue = math.floor(min + (max - min) * relativeX)
                 sliderValueLabel.Text = tostring(sliderValue)
                 pcall(callback, sliderValue)
@@ -482,7 +483,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             sliderFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
                 local rel = 0
                 if max ~= min then rel = (default - min) / (max - min) end
-                sliderThumb.Position = UDim2.new(math.clamp(rel,0,1), -7, -0.2, -2)
+                sliderThumb.Position = UDim2.new(math.clamp(rel,0,1), -5, -0.1, -1)
                 sliderValueLabel.Text = tostring(default)
             end)
             return sliderFrame
@@ -493,16 +494,16 @@ function Library:CreateWindow(guiName, subtitle, version)
             callback = callback or function() end
 
             local dropdownFrame = Instance.new("Frame")
-            dropdownFrame.Size = UDim2.new(0, 120, 0, 24)
+            dropdownFrame.Size = UDim2.new(0, 100, 0, 18) -- << Smaller dropdown
             dropdownFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-            createUICorner(dropdownFrame, UDim.new(0,6))
+            createUICorner(dropdownFrame, UDim.new(0,4))
 
             local dropdownLabel = Instance.new("TextLabel")
             dropdownLabel.Size = UDim2.new(1,0,1,0)
             dropdownLabel.BackgroundTransparency = 1
             dropdownLabel.Text = "Select..."
             dropdownLabel.Font = Enum.Font.GothamMedium
-            dropdownLabel.TextSize = 14
+            dropdownLabel.TextSize = 12
             dropdownLabel.TextColor3 = Color3.fromRGB(255,255,255)
             dropdownLabel.Parent = dropdownFrame
 
@@ -513,7 +514,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             dropdownBtn.Parent = dropdownFrame
 
             local dropdownListFrame = Instance.new("Frame")
-            dropdownListFrame.Size = UDim2.new(1,0,0,#options*24)
+            dropdownListFrame.Size = UDim2.new(1,0,0,#options*18)
             dropdownListFrame.Position = UDim2.new(0,0,1,2)
             dropdownListFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
             dropdownListFrame.Visible = false
@@ -522,15 +523,16 @@ function Library:CreateWindow(guiName, subtitle, version)
 
             local listLayout = Instance.new("UIListLayout", dropdownListFrame)
             listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            listLayout.Padding = UDim.new(0, 1) -- << Tighter dropdown options
 
             for _, opt in ipairs(options) do
                 local optBtn = Instance.new("TextButton")
-                optBtn.Size = UDim2.new(1,0,0,24)
+                optBtn.Size = UDim2.new(1,0,0,18)
                 optBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
                 optBtn.Text = opt
                 optBtn.Font = Enum.Font.GothamMedium
                 optBtn.TextColor3 = Color3.fromRGB(255,255,255)
-                optBtn.TextSize = 14
+                optBtn.TextSize = 12
                 optBtn.Parent = dropdownListFrame
                 optBtn.MouseButton1Click:Connect(function()
                     dropdownLabel.Text = opt
@@ -559,14 +561,14 @@ function Library:CreateWindow(guiName, subtitle, version)
             placeholder = placeholder or ""
 
             local tb = Instance.new("TextBox")
-            tb.Size = UDim2.new(0,160,0,24)
+            tb.Size = UDim2.new(0,100,0,18) -- << Smaller textbox
             tb.BackgroundColor3 = Color3.fromRGB(30,30,30)
             tb.Text = ""
             tb.PlaceholderText = placeholder
             tb.Font = Enum.Font.Gotham
-            tb.TextSize = 14
+            tb.TextSize = 12
             tb.TextColor3 = Color3.fromRGB(255,255,255)
-            createUICorner(tb, UDim.new(0,6))
+            createUICorner(tb, UDim.new(0,4))
 
             tb.FocusLost:Connect(function(enterPressed)
                 if enterPressed then
@@ -581,13 +583,13 @@ function Library:CreateWindow(guiName, subtitle, version)
         function Tab:CreateButton(name, callback)
             callback = callback or function() end
             local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(0,120,0,28)
+            btn.Size = UDim2.new(0,100,0,18) -- << Smaller button
             btn.BackgroundColor3 = Color3.fromRGB(60,0,0)
             btn.Text = name
             btn.Font = Enum.Font.GothamBold
-            btn.TextSize = 14
+            btn.TextSize = 12
             btn.TextColor3 = Color3.fromRGB(255,255,255)
-            createUICorner(btn, UDim.new(0,6))
+            createUICorner(btn, UDim.new(0,4))
 
             btn.MouseButton1Click:Connect(function()
                 pcall(callback)
