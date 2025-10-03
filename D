@@ -285,7 +285,7 @@ function Library:CreateWindow(guiName, subtitle, version)
         local Tab = {}
         Tab.__index = Tab
 
-        local function createRow(parent, labelText, element, onPress)
+        local function createRow(parent, labelText, element)
             local row = Instance.new("Frame")
             row.Size = UDim2.new(0.93, 0, 0, 40)
             row.BackgroundTransparency = 0.85
@@ -309,23 +309,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if element.Size.Y.Offset then elHeight = element.Size.Y.Offset end
             end
             element.Position = UDim2.new(1, -elWidth, 0.5, -elHeight/2)
-
-            local rowBtn = Instance.new("TextButton")
-            rowBtn.Size = UDim2.new(1,0,1,0)
-            rowBtn.BackgroundTransparency = 1
-            rowBtn.Text = ""
-            rowBtn.Parent = row
-            rowBtn.ZIndex = 12
-            if onPress then
-                rowBtn.MouseButton1Click:Connect(onPress)
-                rowBtn.TouchTap:Connect(onPress)
-                rowBtn.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.Touch then
-                        onPress()
-                    end
-                end)
-            end
-            return row, rowBtn
+            return row
         end
 
         function Tab:CreateSection(sectionTitle)
@@ -393,7 +377,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 if globalCallback then pcall(globalCallback, "Toggle", name, toggleOn) end
             end
 
-            -- FIX: Add full mobile support for toggle
+            -- Only toggle when pressing the toggleSwitch itself
             toggleSwitch.MouseButton1Click:Connect(onTogglePress)
             toggleSwitch.TouchTap:Connect(onTogglePress)
             toggleSwitch.InputBegan:Connect(function(input)
@@ -403,7 +387,7 @@ function Library:CreateWindow(guiName, subtitle, version)
             end)
 
             updateToggle(true) -- instantly set initial position
-            createRow(tabFrame, name..":", toggleSwitch, onTogglePress)
+            createRow(tabFrame, name..":", toggleSwitch)
             return toggleSwitch
         end
 
@@ -469,10 +453,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 draggingSlider = false
             end
 
-            local row, rowBtn = createRow(tabFrame, name..":", sliderFrame, function(input)
-                onSliderPress(input)
-            end)
-
+            -- Only sliderFrame and sliderThumb are interactive
             sliderThumb.InputBegan:Connect(function(input)
                 if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
                     onSliderPress(input)
@@ -493,27 +474,6 @@ function Library:CreateWindow(guiName, subtitle, version)
                     stopSliderDrag()
                 end
             end)
-            rowBtn.MouseButton1Down:Connect(function(input)
-                onSliderPress(input)
-            end)
-            rowBtn.MouseButton1Up:Connect(stopSliderDrag)
-            rowBtn.TouchTap:Connect(function()
-                local pos = UserInputService:GetMouseLocation()
-                updateSlider(pos.X)
-                draggingSlider = false
-            end)
-            rowBtn.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.Touch then
-                    local pos = input.Position
-                    updateSlider(pos.X)
-                    draggingSlider = true
-                end
-            end)
-            rowBtn.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.Touch then
-                    draggingSlider = false
-                end
-            end)
             UserInputService.InputChanged:Connect(function(input)
                 if draggingSlider and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
                     updateSlider(input.Position.X)
@@ -527,6 +487,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                 sliderValueLabel.Text = tostring(default)
             end)
             updateSlider(sliderFrame.AbsolutePosition.X, true)
+            createRow(tabFrame, name..":", sliderFrame)
             return sliderFrame
         end
 
@@ -607,7 +568,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                     onDropdownPress()
                 end
             end)
-            createRow(tabFrame, name..":", dropdownFrame, onDropdownPress)
+            createRow(tabFrame, name..":", dropdownFrame)
             return dropdownFrame
         end
 
@@ -666,7 +627,7 @@ function Library:CreateWindow(guiName, subtitle, version)
                     press()
                 end
             end)
-            createRow(tabFrame, name..":", btn, press)
+            createRow(tabFrame, name..":", btn)
             return btn
         end
 
